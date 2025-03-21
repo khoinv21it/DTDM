@@ -32,10 +32,13 @@ app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(session({ secret: 'secret-key', resave: false, saveUninitialized: true }));
 
+app.use(express.urlencoded({ extended: true }));  // Xử lý form-data
+app.use(express.json());  // Xử lý JSON
+
 // Sử dụng routes từ file riêng
-app.use('/', bookRoutes);
 app.use(authorRoutes);
 app.use(genreRoutes);
+app.use('/', bookRoutes);
 
 connectDB().then(() => {
     app.listen(PORT, () => {

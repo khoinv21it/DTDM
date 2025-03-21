@@ -48,8 +48,8 @@ router.get('/', async (req, res) => {
 // Route hiển thị trang thêm sách
 router.get('/add-book', async (req, res) => {
     try {
-        const authors = await Author.find(); // Lấy danh sách tác giả
-        const genres = await TypeBook.find(); // Lấy danh sách thể loại
+        const authors = await Author.find(); 
+        const genres = await TypeBook.find(); 
 
         res.render('add-book', { authors, genres });
     } catch (error) {
@@ -94,6 +94,56 @@ router.get('/book/:id', async (req, res) => {
         res.render('book-detail', { book });
     } catch (error) {
         res.status(500).send("Lỗi tải chi tiết sách.");
+    }
+});
+
+// Route hiển thị trang chỉnh sửa sách
+router.get('/edit-book/:id', async (req, res) => {
+    try {
+        const book = await Book.findById(req.params.id).populate('author').populate('genre');
+        const authors = await Author.find();
+        const genres = await TypeBook.find();
+
+        if (!book) {
+            req.session.message = "Không tìm thấy sách!";
+            return res.redirect('/');
+        }
+
+        res.render('edit-book', { book, authors, genres });
+    } catch (error) {
+        res.status(500).send("Lỗi khi tải trang chỉnh sửa sách.");
+    }
+});
+
+// Route cập nhật sách
+router.post('/edit-book/:id', async (req, res) => {
+    try {
+        const { title, authorId, genreId, year, coverImage, description } = req.body;
+
+        // Kiểm tra xem tác giả và thể loại có tồn tại không
+        const author = await Author.findById(authorId);
+        const genre = await TypeBook.findById(genreId);
+
+        if (!author || !genre) {
+            req.session.message = "Tác giả hoặc thể loại không tồn tại!";
+            return res.redirect(`/edit-book/${req.params.id}`);
+        }
+
+        // Cập nhật sách
+        await Book.findByIdAndUpdate(req.params.id, {
+            title,
+            author: author._id,
+            genre: genre._id,
+            year,
+            coverImage,
+            description
+        });
+
+        req.session.message = "Cập nhật sách thành công!";
+        res.redirect('/');
+    } catch (error) {
+        req.session.message = "Lỗi khi cập nhật sách!";
+        res.redirect('/');
     }
 });
 

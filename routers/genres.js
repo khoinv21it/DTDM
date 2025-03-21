@@ -12,6 +12,10 @@ router.get('/manage-genres', async (req, res) => {
     }
 });
 
+router.get('/add-genre', (req, res) => {
+    res.render('add-genre', { message: null });
+});
+
 // Thêm thể loại
 router.post('/add-genre', async (req, res) => {
     try {

@@ -12,14 +12,28 @@ router.get('/manage-authors', async (req, res) => {
     }
 });
 
+// Hiển thị trang thêm tác giả
+router.get('/add-author', (req, res) => {
+    res.render('add-author', { message: null });
+});
+
 // Thêm tác giả
 router.post('/add-author', async (req, res) => {
     try {
-        const newAuthor = new Author({ name: req.body.name });
+        console.log("Dữ liệu nhận được:", req.body);
+
+        const { name, biography } = req.body;
+
+        if (!name || !biography) {
+            return res.status(400).send("Vui lòng nhập đầy đủ thông tin.");
+        }
+
+        const newAuthor = new Author({ name, biography });
         await newAuthor.save();
-        res.redirect('/manage-authors');
+        res.redirect('/add-author?message=Thêm tác giả thành công');
     } catch (error) {
-        res.status(500).send("Lỗi thêm tác giả.");
+        console.error("Lỗi thêm tác giả:", error);
+        res.status(500).send("Lỗi thêm tác giả: " + error.message);
     }
 });
 
